@@ -35,15 +35,21 @@ class BoatController extends AbstractController
     /**
      * @Route("/direction/{direction}", name="boatDirection", requirements={"N" = "\w", "S" = "\w", "W" = "\w", "E" = "\w"})
      */
-    public function moveDirection(string $direction, MapManager $mapManager): Response
+    public function moveDirection(string $direction, MapManager $mapManager, BoatRepository $boatRepository): Response
     {
+        $boat = $boatRepository->findOneBy([]);
+
         $directions = ['N', 'S', 'W', 'E'];
         if (!in_array($direction, $directions)) {
             return $this->redirectToRoute('404');
         };
-        if ($mapManager->moveBoat($direction) === false) {
+        if ($mapManager->moveBoat($direction)) {
+            if ($mapManager->checkTreasure($boat)) {
+                $this->addFlash('success', 'congratulations, you finnaly found the treasure chest !');
+            }
+        } else {
             $this->addFlash('warning', 'The sea map isn\'t that big !');
-        };
+        }
         return $this->redirectToRoute('map');
     }
 
