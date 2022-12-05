@@ -69,4 +69,9 @@ class MapManager
     {
         return $this->tileRepository->findBy(['type' => 'island']);
     }
+    public function checkTreasure(Boat $boat): bool
+    {
+        $tile = $this->tileRepository->findOneBy(['coordX' => $boat->getCoordX(), 'coordY' => $boat->getCoordY()]);
+        return $tile->getHasTreasure();
+    }
 }
