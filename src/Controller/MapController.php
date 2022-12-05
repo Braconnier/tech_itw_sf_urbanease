@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Tile;
 use App\Repository\BoatRepository;
 use App\Repository\TileRepository;
+use App\Service\MapManager;
 
 class MapController extends AbstractController
 {
@@ -33,5 +34,16 @@ class MapController extends AbstractController
             'boat' => $boat,
             'tile' => $tile
         ]);
+    }
+
+    /**
+     * @Route("/start", name="start")
+     */
+    public function start(BoatRepository $boatRepository, MapManager  $mapManager)
+    {
+        $boat = $boatRepository->findOneBy([]);
+        $mapManager->resetBoat($boat);
+        $mapManager->resetTreasure();
+        return $this->redirectToRoute('map');
     }
 }

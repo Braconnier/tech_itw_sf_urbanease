@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Boat;
 use App\Entity\Tile;
 use App\Repository\BoatRepository;
 use App\Repository\TileRepository;
@@ -15,7 +16,8 @@ class MapManager
         $this->boatRepository = $boatRepository;
         $this->em = $em;
     }
-    public function  moveBoat($direction)
+
+    public function  moveBoat(string $direction): bool
     {
         $boat = $this->boatRepository->findOneBy([]);
 
@@ -30,13 +32,41 @@ class MapManager
             return true;
         } else return false;
     }
-    public function tileExists(int $x, int $y)
+
+    public function tileExists(int $x, int $y): bool
     {
         return !!$this->tileRepository->findOneBy(['coordX' => $x, 'coordY' => $y]);
     }
+
     public function getRandomIsland(): Tile
     {
-        $islandTiles = $this->tileRepository->findBy(['type' => 'island']);
+        $islandTiles = $this->getIslandTiles();
         return $islandTiles[array_rand($islandTiles)];
+    }
+
+    public function resetBoat(Boat $boat): void
+    {
+        $boat->setCoordX(0)
+            ->setCoordY(0);
+        $this->em->persist($boat);
+        $this->em->flush();
+    }
+
+    public function resetTreasure(): void
+    {
+        $islandTiles = $this->getIslandTiles();
+        foreach ($islandTiles as $islandTile) {
+            $islandTile->setHasTreasure(false);
+            $this->em->persist($islandTile);
+        }
+        $island = $this->getRandomIsland();
+        $island->setHasTreasure(true);
+        $this->em->persist($island);
+        $this->em->flush();
+    }
+
+    private function getIslandTiles(): array
+    {
+        return $this->tileRepository->findBy(['type' => 'island']);
     }
 }
