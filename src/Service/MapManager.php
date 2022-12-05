@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Tile;
 use App\Repository\BoatRepository;
 use App\Repository\TileRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,5 +33,10 @@ class MapManager
     public function tileExists(int $x, int $y)
     {
         return !!$this->tileRepository->findOneBy(['coordX' => $x, 'coordY' => $y]);
+    }
+    public function getRandomIsland(): Tile
+    {
+        $islandTiles = $this->tileRepository->findBy(['type' => 'island']);
+        return $islandTiles[array_rand($islandTiles)];
     }
 }
