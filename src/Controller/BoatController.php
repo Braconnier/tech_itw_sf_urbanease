@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Boat;
 use App\Form\BoatType;
 use App\Repository\BoatRepository;
+use App\Service\MapManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +22,7 @@ class BoatController extends AbstractController
      * Move the boat to coord x,y
      * @Route("/move/{x}/{y}", name="moveBoat", requirements={"x"="\d+", "y"="\d+"}))
      */
-    public function moveBoat(int $x, int $y, BoatRepository $boatRepository, EntityManagerInterface $em) :Response
+    public function moveBoat(int $x, int $y, BoatRepository $boatRepository, EntityManagerInterface $em): Response
     {
         $boat = $boatRepository->findOneBy([]);
         $boat->setCoordX($x);
@@ -31,7 +32,18 @@ class BoatController extends AbstractController
 
         return $this->redirectToRoute('map');
     }
-
+    /**
+     * @Route("/direction/{direction}", name="boatDirection", requirements={"N" = "\w", "S" = "\w", "W" = "\w", "E" = "\w"})
+     */
+    public function moveDirection(string $direction, MapManager $mapManager): Response
+    {
+        $directions = ['N', 'S', 'W', 'E'];
+        if (!in_array($direction, $directions)) {
+            return $this->redirectToRoute('404');
+        };
+        $mapManager->moveBoat($direction);
+        return $this->redirectToRoute('map');
+    }
 
     /**
      * @Route("/", name="boat_index", methods="GET")
